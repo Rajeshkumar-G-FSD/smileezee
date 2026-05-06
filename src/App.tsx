@@ -687,6 +687,227 @@ const BookingModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => voi
   );
 };
 
+// --- Chatbot Component ---
+
+const Chatbot = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [step, setStep] = useState(0);
+  const [chatData, setChatData] = useState({
+    name: '',
+    purpose: '',
+    issue: '',
+    date: '',
+    slot: ''
+  });
+
+  const slots = [
+    '09:30 AM', '11:00 AM', '02:30 PM', '05:00 PM', '07:30 PM'
+  ];
+
+  const steps = [
+    { 
+      question: "Hello! Welcome to Smile Ezee Dentistry. May I know your name please?",
+      field: 'name',
+      type: 'text',
+      placeholder: 'Enter your name'
+    },
+    {
+      question: "Great to meet you! What is the purpose of your visit? (e.g. Checkup, Cleaning, Treatment)",
+      field: 'purpose',
+      type: 'text',
+      placeholder: 'Purpose of visit'
+    },
+    {
+      question: "Are you experiencing any specific issues or pain?",
+      field: 'issue',
+      type: 'textarea',
+      placeholder: 'Describe your issue...'
+    },
+    {
+      question: "When would you like to visit us?",
+      field: 'date',
+      type: 'date'
+    },
+    {
+      question: "Please select a preferred time slot:",
+      field: 'slot',
+      type: 'select',
+      options: slots
+    }
+  ];
+
+  const handleNext = () => {
+    if (step < steps.length) {
+      setStep(step + 1);
+    }
+  };
+
+  const handleWhatsApp = () => {
+    const text = `*Chatbot Enquiry*%0A*Name:* ${chatData.name}%0A*Purpose:* ${chatData.purpose}%0A*Issue:* ${chatData.issue}%0A*Date:* ${chatData.date}%0A*Slot:* ${chatData.slot}`;
+    window.open(`https://wa.me/918072117912?text=${text}`, '_blank');
+  };
+
+  return (
+    <div className="fixed bottom-8 left-8 z-[60]">
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            className="mb-4 w-80 md:w-96 glass-card !bg-white/95 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[500px]"
+          >
+            {/* Header */}
+            <div className="bg-secondary p-4 text-white flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                <span className="font-bold text-sm">Smile Ezee Assistant</span>
+              </div>
+              <button onClick={() => setIsOpen(false)} className="hover:rotate-90 transition-transform">
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Chat Area */}
+            <div className="flex-grow p-4 overflow-y-auto space-y-4 scrollbar-thin">
+              {/* Previous Messages History simulation */}
+              {steps.slice(0, step + 1).map((s, i) => (
+                <div key={i} className="space-y-4">
+                  <motion.div 
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="bg-surface-container p-3 rounded-lg rounded-tl-none text-sm text-primary max-w-[85%]"
+                  >
+                    {s.question}
+                  </motion.div>
+                  
+                  {i < step && (
+                    <motion.div 
+                      initial={{ x: 20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      className="bg-secondary text-white p-3 rounded-lg rounded-tr-none text-sm self-end ml-auto max-w-[85%]"
+                    >
+                      {(chatData as any)[s.field]}
+                    </motion.div>
+                  )}
+                </div>
+              ))}
+
+              {step === steps.length && (
+                <motion.div 
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="bg-green-50 border border-green-200 p-4 rounded-lg space-y-2"
+                >
+                  <p className="text-sm font-bold text-green-800">Enquiry Summary:</p>
+                  <div className="text-xs text-green-700 space-y-1">
+                    <p>• {chatData.name}</p>
+                    <p>• {chatData.purpose}</p>
+                    <p>• {chatData.date} at {chatData.slot}</p>
+                  </div>
+                  <button 
+                    onClick={handleWhatsApp}
+                    className="w-full bg-green-600 text-white py-2 rounded-lg text-sm font-bold mt-2 hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    Send to WhatsApp <MessageCircle size={16} />
+                  </button>
+                </motion.div>
+              )}
+            </div>
+
+            {/* Input Area */}
+            {step < steps.length && (
+              <div className="p-4 border-t border-outline-variant/20 bg-surface">
+                {steps[step].type === 'text' && (
+                  <div className="flex gap-2">
+                    <input 
+                      type="text"
+                      placeholder={steps[step].placeholder}
+                      className="flex-grow p-2 text-sm bg-white border border-outline-variant/30 rounded-lg outline-none focus:border-secondary"
+                      value={(chatData as any)[steps[step].field]}
+                      onChange={(e) => setChatData({...chatData, [steps[step].field]: e.target.value})}
+                      onKeyPress={(e) => e.key === 'Enter' && (chatData as any)[steps[step].field] && handleNext()}
+                    />
+                    <button 
+                      onClick={handleNext}
+                      disabled={!(chatData as any)[steps[step].field]}
+                      className="p-2 bg-secondary text-white rounded-lg disabled:opacity-50"
+                    >
+                      <ArrowRight size={18} />
+                    </button>
+                  </div>
+                )}
+
+                {steps[step].type === 'textarea' && (
+                  <div className="space-y-2">
+                    <textarea 
+                      placeholder={steps[step].placeholder}
+                      className="w-full p-2 text-sm bg-white border border-outline-variant/30 rounded-lg outline-none focus:border-secondary resize-none"
+                      rows={2}
+                      value={(chatData as any)[steps[step].field]}
+                      onChange={(e) => setChatData({...chatData, [steps[step].field]: e.target.value})}
+                    />
+                    <button 
+                      onClick={handleNext}
+                      disabled={!(chatData as any)[steps[step].field]}
+                      className="w-full bg-secondary text-white p-2 rounded-lg text-sm font-bold"
+                    >
+                      Continue
+                    </button>
+                  </div>
+                )}
+
+                {steps[step].type === 'date' && (
+                  <div className="space-y-2">
+                    <input 
+                      type="date"
+                      className="w-full p-2 text-sm bg-white border border-outline-variant/30 rounded-lg outline-none focus:border-secondary"
+                      value={(chatData as any)[steps[step].field]}
+                      onChange={(e) => setChatData({...chatData, [steps[step].field]: e.target.value})}
+                    />
+                    <button 
+                      onClick={handleNext}
+                      disabled={!(chatData as any)[steps[step].field]}
+                      className="w-full bg-secondary text-white p-2 rounded-lg text-sm font-bold"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+
+                {steps[step].type === 'select' && (
+                  <div className="grid grid-cols-2 gap-2">
+                    {steps[step].options?.map(opt => (
+                      <button
+                        key={opt}
+                        onClick={() => {
+                          setChatData({...chatData, slot: opt});
+                          setStep(step + 1);
+                        }}
+                        className="p-2 text-xs font-bold border border-secondary/30 rounded-lg hover:bg-secondary/5 text-secondary"
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-14 h-14 rounded-full bg-secondary text-white shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all relative"
+      >
+        <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse" />
+        {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
+      </button>
+    </div>
+  );
+};
+
 export default function App() {
   const [page, setPage] = useState<Page>('home');
   const [isBookingOpen, setIsBookingOpen] = useState(false);
@@ -756,6 +977,8 @@ export default function App() {
       </main>
 
       <Footer setPage={setPage} />
+
+      <Chatbot />
 
       <BookingModal 
         isOpen={isBookingOpen} 
