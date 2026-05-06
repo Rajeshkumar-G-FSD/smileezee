@@ -924,6 +924,7 @@ const Chatbot = () => {
 export default function App() {
   const [page, setPage] = useState<Page>('home');
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const renderPage = () => {
     switch (page) {
@@ -971,10 +972,54 @@ export default function App() {
             <button onClick={() => setIsBookingOpen(true)} className="btn-primary ml-4">Book Appointment</button>
           </div>
 
-          <button className="md:hidden text-primary" onClick={() => setIsBookingOpen(true)}>
-             <Menu />
+          <button className="md:hidden text-primary p-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+             {isMobileMenuOpen ? <X /> : <Menu />}
           </button>
         </div>
+
+        {/* Mobile Navigation Dropdown */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden bg-white border-t border-outline-variant/10 overflow-hidden"
+            >
+              <div className="flex flex-col p-4 gap-2">
+                {[
+                  { id: 'home', label: 'Home' },
+                  { id: 'about', label: 'About Us' },
+                  { id: 'services', label: 'Services' },
+                  { id: 'gallery', label: 'Gallery' },
+                  { id: 'contact', label: 'Contact' },
+                ].map((link) => (
+                  <button
+                    key={link.id}
+                    onClick={() => {
+                      setPage(link.id as Page);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`text-left py-3 px-4 rounded-xl font-medium transition-colors ${
+                      page === link.id ? 'bg-secondary/10 text-secondary' : 'text-primary/70 hover:bg-surface'
+                    }`}
+                  >
+                    {link.label}
+                  </button>
+                ))}
+                <button 
+                  onClick={() => {
+                    setIsBookingOpen(true);
+                    setIsMobileMenuOpen(false);
+                  }} 
+                  className="btn-primary mt-2 w-full text-center"
+                >
+                  Book Appointment
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
       
       <main className="flex-grow pt-20">
