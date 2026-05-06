@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Home as HomeIcon, 
@@ -31,83 +31,9 @@ import {
 } from 'lucide-react';
 
 // --- Types ---
-type Page = 'home' | 'about' | 'services' | 'contact';
+type Page = 'home' | 'about' | 'services' | 'gallery' | 'contact';
 
 // --- Shared Components ---
-
-const Navbar = ({ currentPage, setPage }: { currentPage: Page, setPage: (p: Page) => void }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const links: { id: Page; label: string }[] = [
-    { id: 'home', label: 'Home' },
-    { id: 'about', label: 'About Us' },
-    { id: 'services', label: 'Services' },
-    { id: 'contact', label: 'Contact' },
-  ];
-
-  return (
-    <nav className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/20 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex justify-between items-center">
-        <div 
-          className="flex items-center gap-3 cursor-pointer"
-          onClick={() => setPage('home')}
-        >
-          <img 
-            src="https://i.postimg.cc/9MzdQLpr/SEzee.jpg" 
-            alt="Clinic Logo" 
-            className="h-14 w-auto rounded-md shadow-sm"
-            referrerPolicy="no-referrer"
-          />
-        </div>
-        
-        {/* Desktop Nav */}
-        <div className="hidden md:flex gap-4 items-center">
-          {links.map((link) => (
-            <button
-              key={link.id}
-              onClick={() => setPage(link.id)}
-              className={`nav-link ${currentPage === link.id ? 'nav-link-active' : ''}`}
-            >
-              {link.label}
-            </button>
-          ))}
-          <button className="btn-primary ml-4">Book Appointment</button>
-        </div>
-
-        {/* Mobile Toggle */}
-        <button className="md:hidden text-primary" onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? <X /> : <Menu />}
-        </button>
-      </div>
-
-      {/* Mobile Nav */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="md:hidden bg-white border-b border-outline-variant/20 px-4 py-6 flex flex-col gap-4 shadow-xl"
-          >
-            {links.map((link) => (
-              <button
-                key={link.id}
-                onClick={() => {
-                  setPage(link.id);
-                  setIsOpen(false);
-                }}
-                className={`text-left py-2 font-medium ${currentPage === link.id ? 'text-secondary' : 'text-primary/70'}`}
-              >
-                {link.label}
-              </button>
-            ))}
-            <button className="btn-primary w-full text-center">Book Appointment</button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </nav>
-  );
-};
 
 const Footer = ({ setPage }: { setPage: (p: Page) => void }) => (
   <footer className="bg-surface-container-lowest border-t border-outline-variant/30 py-16">
@@ -127,12 +53,13 @@ const Footer = ({ setPage }: { setPage: (p: Page) => void }) => (
         <p className="text-xs text-primary/50">© 2026 DataZync. All Rights Reserved.</p>
       </div>
       <div>
-        <h4 className="text-xs font-bold uppercase tracking-widest text-primary/40 mb-6">Legal & Info</h4>
+        <h4 className="text-xs font-bold uppercase tracking-widest text-primary/40 mb-6">Quick Links</h4>
         <ul className="space-y-3">
-          <li><button className="text-sm text-primary/70 hover:text-secondary transition-colors">Privacy Policy</button></li>
-          <li><button className="text-sm text-primary/70 hover:text-secondary transition-colors">Terms of Service</button></li>
-          <li><button className="text-sm text-primary/70 hover:text-secondary transition-colors">Patient Rights</button></li>
-          <li><button className="text-sm text-primary/70 hover:text-secondary transition-colors">Insurance Partners</button></li>
+          <li><button onClick={() => setPage('home')} className="text-sm text-primary/70 hover:text-secondary transition-colors">Home</button></li>
+          <li><button onClick={() => setPage('about')} className="text-sm text-primary/70 hover:text-secondary transition-colors">About Us</button></li>
+          <li><button onClick={() => setPage('services')} className="text-sm text-primary/70 hover:text-secondary transition-colors">Services</button></li>
+          <li><button onClick={() => setPage('gallery')} className="text-sm text-primary/70 hover:text-secondary transition-colors">Gallery</button></li>
+          <li><button onClick={() => setPage('contact')} className="text-sm text-primary/70 hover:text-secondary transition-colors">Contact</button></li>
         </ul>
       </div>
       <div>
@@ -257,7 +184,7 @@ const HomePage = ({ setPage, setIsBookingOpen }: { setPage: (p: Page) => void, s
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {[
             { 
-              quote: "The team at Lumina transformed my approach to dental visits. The environment is so calming, and the care is incredibly precise.",
+              quote: "The team at Smile Ezee transformed my approach to dental visits. The environment is so calming, and the care is incredibly precise.",
               author: "SARAH JENKINS",
               img: "https://lh3.googleusercontent.com/aida-public/AB6AXuD5OVsPtsUKrETN_rBBuZ3h7ZLH7JcDSSlCtLColqz25FB4Bh51fLHmZqPUuNEjXRHbF57rCi5w_5W8Bx6ZT434wwKv9xq3DEwCJjDcv-gTQIURflyYphm1lxnk8iMqIPf3HQ4VUvgUrclVkNE0Ge5UtwyR9MvBPda-i1VE00CMjUcKmjRc_8VGSeewZUv3_2y7FzX991qSZ5z_VAL--MA_xWBmEL-lF-8ypTtZhoEW7X2D1GHM7Ol8insZGcYFqSClHRpMG8XCeHSL"
             },
@@ -287,7 +214,7 @@ const AboutPage = () => (
       <div className="space-y-6">
         <h1 className="text-5xl font-bold leading-tight">Redefining the Dental Experience.</h1>
         <p className="text-lg text-primary/70 leading-relaxed">
-          Founded on the principles of clinical excellence and compassionate care, Lumina Dental Clinic brings a new standard of oral health to our community. 
+          Founded on the principles of clinical excellence and compassionate care, Smile Ezee Dentistry brings a new standard of oral health to our community. 
           We believe a trip to the dentist should be serene, transparent, and built on a foundation of absolute trust.
         </p>
         <p className="text-primary/60">
@@ -390,6 +317,92 @@ const ServicesPage = ({ setIsBookingOpen }: { setIsBookingOpen: (o: boolean) => 
   </div>
 );
 
+const GalleryPage = () => {
+  const images = [
+    { url: "https://lh3.googleusercontent.com/aida-public/AB6AXuDp-lmJ34oGCE2dTdRbuI3BRryqs9tria5LW1URB607yj0J3WTmPdZ-OuzXCuokVJmxlhrzCLOtjwHWAlWUe1gYX9pFHq9xTxuhThw6c7c1gfLDIaIlhRLZqrq6H29YBfMcNxVFv0Tya8knB0B32jJindto7E-Apy-yvCtChwEare6GCnk0pWbxEPT6H8j1kxoJQpzDug19imr2spSj6x-rnxRwWmTYz3bn6c_dMHqoyeGhmT4ox6vmAgCTwjMziI_13Q5gDTGvOSgc", title: "Modern Operatory" },
+    { url: "https://lh3.googleusercontent.com/aida-public/AB6AXuAZGbjVqHRB_o9McXnLjI-BIpTFELmjirCc-iIhUWn-Ws15OsHyf_LjuxjseFyvj_43w_CoWjQiit8x2KdiQDQKGcEaD8h8Mr9C7TL-l7-TT7Ik-Vfo2N5OcBxVoMkpNy5mBVVucwkEQJH0Dl5YICEZB85ZOphSjI6EjLOthu0za9G1u9Nq8O2q-5N8HttilgX0GAHtlJbraDFRjtfhjElGinRkwpo5F5zqxTdeuaNaXdLs0CmX7FqmkL55ilIOlFZ909As_nEWZFDY", title: "Advanced Diagnostics" },
+    { url: "https://lh3.googleusercontent.com/aida-public/AB6AXuD0OqPg3HyEguIZTPzKfWAiGVdcHC3-RvXfZIBuXatTbqLgHAtjo86CMkLzvqxs0WVvYUTiw-sUcOL9-tAlde3AFrFFQz2kpUbLiHKl6qjllbF1WdaF7QMRdRQpOHzku1z07W6O4sR290HJNMtze2VbSWAhSNbF4R5GewDuYz-ezonU_DhTl8m4oCunZ5XNl4xWeJkcRv2kGUCzDMGpeD8-SW5Kkuh4j-HF2sCyZ6nqJ-8uZxzblFfi7xdKWnRlFqx2Cj3VpMOEwqUX", title: "Patient Comfort" },
+    { url: "https://lh3.googleusercontent.com/aida-public/AB6AXuDAUDzaRPVOjOTOhYq7TfhkknR6cIEiu26sIEmywQOOZRl2CcLAW1OzyCfIoNbm6j8khXI9GH-ltJalsPtELjezs5M1HT6fxW7vUKe_QX9DzrjZHrJogj8s5CQwqdMOyllTNDL09OkPsnjaTKEqmZCzlq0bcTBfd7zGp99rt7YpKQNuyJXw-PPmA_bWn7FMZMkpqHMFLK49nnZ0_pXclYff9giBZE4VpAJM3wStxcPzKmkg-dhx_vthYPpBA--ZEwidUg9JlwNp3TF1", title: "Specialized Lab" },
+    { url: "https://lh3.googleusercontent.com/aida-public/AB6AXuBEc8xW5QTXvyyjvruuEK4KLHBhJJbvlR1jAV_YMaiyirDlUUPtSB_ibMxR4DxpNJi3jK2yQA0lESa6CaPpkRgv7gusHDSHMklxizmzRmmkNfS0beshQyvCGw4RuNgcCj-Jy49hVFbjoUHtClYAGHeteGFDRyXi_CBIxAkaCV65fkF5uRmwU_7mFBvVe5CVYMS1Nhy3C0RlgCXVvudlabJDN-bNGMsTPg-708YkYlQux--id9_kHXaJePNB_a_s125B1HtbB3ywFpsP", title: "Dental Laboratory" }
+  ];
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, 1000); // 1 sec auto slide
+    return () => clearInterval(timer);
+  }, [images.length]);
+
+  return (
+    <div className="py-20 max-w-7xl mx-auto px-4 sm:px-6 min-h-[80vh] flex flex-col items-center">
+      <div className="text-center mb-16 space-y-4">
+        <h1 className="text-5xl font-bold text-primary">Smile Gallery</h1>
+        <p className="text-lg text-primary/60">Take a virtual tour of our state-of-the-art dental facility.</p>
+      </div>
+
+      <div className="relative w-full max-w-4xl h-[500px] flex items-center justify-center perspective-1000 overflow-hidden">
+        {images.map((img, i) => {
+          let position = i - currentIndex;
+          if (position < -2) position += images.length;
+          if (position > 2) position -= images.length;
+
+          const isActive = position === 0;
+          
+          return (
+            <motion.div
+              key={i}
+              initial={false}
+              animate={{
+                x: position * 300,
+                scale: isActive ? 1.2 : 0.8,
+                zIndex: isActive ? 10 : 5 - Math.abs(position),
+                opacity: Math.abs(position) > 2 ? 0 : 1 - Math.abs(position) * 0.3,
+                rotateY: position * -45,
+              }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="absolute w-64 md:w-96 aspect-[3/4] rounded-2xl shadow-2xl overflow-hidden cursor-pointer"
+              onClick={() => setCurrentIndex(i)}
+            >
+              <img 
+                src={img.url} 
+                alt={img.title} 
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+                <p className="text-white font-bold text-lg">{img.title}</p>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      <div className="mt-20 grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+        <div className="glass-card p-8 rounded-2xl flex gap-6 items-center">
+          <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center shrink-0">
+             <ShieldCheck className="text-secondary" size={32} />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold mb-2">Advanced Sterilization</h3>
+            <p className="text-sm text-primary/70">Our lab maintains the highest standards of clinical hygiene and safety protocols.</p>
+          </div>
+        </div>
+        <div className="glass-card p-8 rounded-2xl flex gap-6 items-center">
+          <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center shrink-0">
+             <Sparkles className="text-secondary" size={32} />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold mb-2">Digital Workflow</h3>
+            <p className="text-sm text-primary/70">Using 3D printing and intraoral scanning for precise and fast dental solutions.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ContactPage = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -398,7 +411,7 @@ const ContactPage = () => {
     message: ''
   });
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = (e: FormEvent) => {
     e.preventDefault();
     const text = `*New Contact Message*%0A*Name:* ${formData.name}%0A*Phone:* ${formData.phone}%0A*Email:* ${formData.email}%0A*Message:* ${formData.message}`;
     window.open(`https://wa.me/918072117912?text=${text}`, '_blank');
@@ -538,7 +551,7 @@ const BookingModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => voi
     '07:00 PM', '07:30 PM'
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     
     // Construct WhatsApp message
@@ -917,8 +930,9 @@ export default function App() {
       case 'home': return <HomePage setPage={setPage} setIsBookingOpen={setIsBookingOpen} />;
       case 'about': return <AboutPage />;
       case 'services': return <ServicesPage setIsBookingOpen={setIsBookingOpen} />;
+      case 'gallery': return <GalleryPage />;
       case 'contact': return <ContactPage />;
-      default: return <HomePage setPage={setPage} />;
+      default: return <HomePage setPage={setPage} setIsBookingOpen={setIsBookingOpen} />;
     }
   };
 
@@ -943,6 +957,7 @@ export default function App() {
               { id: 'home', label: 'Home' },
               { id: 'about', label: 'About Us' },
               { id: 'services', label: 'Services' },
+              { id: 'gallery', label: 'Gallery' },
               { id: 'contact', label: 'Contact' },
             ].map((link) => (
               <button
